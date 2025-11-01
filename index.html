@@ -1,566 +1,385 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explorador de Paralelismo a Nivel de Chip (CLP)</title>
-    <style>
-        /* Estilos Generales */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f4f7f6;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        h1, h2, h3 {
-            color: #005a9c;
-        }
-        h1 {
-            text-align: center;
-            border-bottom: 3px solid #005a9c;
-            padding-bottom: 10px;
-        }
-        h2 {
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-
-        /* Navegación por Pestañas */
-        nav {
-            background-color: #333;
-            overflow: hidden;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        nav button {
-            background-color: inherit;
-            float: left;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            padding: 14px 16px;
-            transition: 0.3s;
-            font-size: 17px;
-            color: white;
-            font-weight: bold;
-        }
-        nav button:hover {
-            background-color: #555;
-        }
-        nav button.active {
-            background-color: #005a9c;
-        }
-
-        /* Contenido de las Pestañas */
-        .tabcontent {
-            display: none;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #ffffff;
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Estilos para el Simulador */
-        #sim-controls {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 5px;
-        }
-        #sim-output {
-            border: 1px solid #ccc;
-            padding: 10px;
-            min-height: 200px;
-            background: #fafafa;
-            overflow-x: auto;
-        }
-        .core-container {
-            margin-bottom: 10px;
-        }
-        .core-label {
-            font-weight: bold;
-            display: inline-block;
-            width: 80px;
-        }
-        .task-bar {
-            display: inline-block;
-            height: 25px;
-            background-color: #007bff;
-            margin: 2px 0;
-            color: white;
-            font-size: 12px;
-            line-height: 25px;
-            text-align: center;
-            transition: width 0.3s ease-out;
-            width: 0; /* Inicia en 0 */
-        }
-        .task-bar-superscalar {
-            background-color: #28a745;
-        }
-        .task-bar-multicore {
-            background-color: #dc3545;
-        }
-        #sim-results {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #005a9c;
-            margin-top: 15px;
-        }
-
-        /* Estilos para el Cuestionario */
-        .quiz-question {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #fefefe;
-            border: 1px solid #eee;
-            border-radius: 5px;
-        }
-        .quiz-question p {
-            font-weight: bold;
-        }
-        .quiz-options label {
-            display: block;
-            margin: 5px 0 5px 20px;
-            cursor: pointer;
-        }
-        #quiz-feedback {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            display: none; /* Oculto al inicio */
-        }
-        #quiz-feedback.correct {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        #quiz-feedback.incorrect {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        /* Utilidades */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .grid-item {
-            background: #fdfdfd;
-            border: 1px solid #eaeaea;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        code {
-            background-color: #eee;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-        .img-placeholder {
-            width: 100%;
-            height: 200px;
-            background: #eee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #888;
-            font-style: italic;
-            border: 1px dashed #ccc;
-            text-align: center;
-            padding: 10px;
-            box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
-        }
-
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Paralelismo a Nivel de Chip (CLP)</title>
+    <link href="./site.css" rel="stylesheet">
+  </head>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🚀 Explorador de Paralelismo a Nivel de Chip (CLP)</h1>
+    <div class="container">
+        <h1>🚀 Explorador de Paralelismo a Nivel de Chip (CLP)</h1>
 
-        <nav>
-            <button class="tablink" onclick="openTab(event, 'Introduccion')" id="defaultOpen">Introducción</button>
-            <button class="tablink" onclick="openTab(event, 'TiposParalelismo')">Tipos de Paralelismo (ILP, TLP, DLP)</button>
-            <button class="tablink" onclick="openTab(event, 'Arquitecturas')">Arquitecturas Clave</button>
-            <button class="tablink" onclick="openTab(event, 'Simulador')">Simulador Conceptual</button>
-            <button class="tablink" onclick="openTab(event, 'Evaluacion')">Autoevaluación</button>
-        </nav>
+        <nav>
+            <button class="tablink" onclick="openTab(event, 'Introduccion')" id="defaultOpen">Introducción</button>
+            <button class="tablink" onclick="openTab(event, 'TiposParalelismo')">Tipos de Paralelismo (ILP, TLP, DLP)</button>
+            <button class="tablink" onclick="openTab(event, 'Arquitecturas')">Arquitecturas Clave</button>
+            <button class="tablink" onclick="openTab(event, 'Simulador')">Simulador Conceptual</button>
+            <button class="tablink" onclick="openTab(event, 'Evaluacion')">Autoevaluación</button>
+        </nav>
 
-        <div id="Introduccion" class="tabcontent">
-            <h2>Bienvenida al Paralelismo a Nivel de Chip (CLP)</h2>
-            <p>El **Paralelismo a Nivel de Chip (Chip-Level Parallelism - CLP)** se refiere a las técnicas utilizadas dentro de un solo microprocesador (chip) para ejecutar múltiples tareas o instrucciones simultáneamente. </p>
-            <p>Durante décadas, el rendimiento de los procesadores aumentó principalmente incrementando la velocidad del reloj (frecuencia, medida en GHz). Sin embargo, alrededor de 2005, esto se volvió insostenible debido a dos barreras principales:</p>
-            <ul>
-                <li><strong>El Muro del Consumo de Energía (Power Wall):</strong> A mayor frecuencia, mayor consumo de energía y, por lo tanto, ¡más calor! Se volvió imposible enfriar los chips de manera eficiente.</li>
-                <li><strong>El Muro de la Complejidad (Complexity Wall):</strong> Diseñar procesadores de un solo núcleo cada vez más rápidos y complejos (como los superescalares profundos) comenzó a dar rendimientos decrecientes.</li>
-            </ul>
-            <p>La solución fue cambiar el enfoque: en lugar de hacer *una* cosa muy rápida, ¿por qué no hacer *muchas* cosas a la vez a una velocidad razonable? Así nació la era del CLP.</p>
-            
-            <h3>Implicancias del CLP</h3>
-            <ul>
-                <li><strong>Rendimiento:</strong> El rendimiento ya no depende de la velocidad del reloj, sino de cuántas tareas paralelas puede manejar el chip. Esto es crucial para software moderno (servidores web, IA, videojuegos).</li>
-                <li><strong>Diseño:</strong> Los diseñadores de chips ahora se centran en cómo integrar múltiples "cerebros" (núcleos) en un chip, cómo se comunican entre sí y cómo comparten recursos (como la memoria caché).</li>
-                <li><strong>Eficiencia (Rendimiento por Vatio):</strong> Varios núcleos más simples y lentos suelen ser mucho más eficientes energéticamente que un solo núcleo monolítico y ultra-rápido para tareas paralelas.</li>
-            </ul>
-        </div>
+        <div id="Introduccion" class="tabcontent">
+            <h2>Bienvenida al Paralelismo a Nivel de Chip (CLP)</h2>
+            <p>El **Paralelismo a Nivel de Chip (Chip-Level Parallelism - CLP)** se refiere a las técnicas utilizadas dentro de un solo microprocesador (chip) para ejecutar múltiples tareas o instrucciones simultáneamente. </p>
+            <p>Durante décadas, el rendimiento de los procesadores aumentó principalmente incrementando la velocidad del reloj (frecuencia, medida en GHz). Sin embargo, alrededor de 2005, esto se volvió insostenible debido a dos barreras principales:</p>
+            <ul>
+                <li><strong>El Muro del Consumo de Energía (Power Wall):</strong> A mayor frecuencia, mayor consumo de energía y, por lo tanto, ¡más calor! Se volvió imposible enfriar los chips de manera eficiente.</li>
+                <li><strong>El Muro de la Complejidad (Complexity Wall):</strong> Diseñar procesadores de un solo núcleo cada vez más rápidos y complejos (como los superescalares profundos) comenzó a dar rendimientos decrecientes.</li>
+            </ul>
+            <p>La solución fue cambiar el enfoque: en lugar de hacer *una* cosa muy rápida, ¿por qué no hacer *muchas* cosas a la vez a una velocidad razonable? Así nació la era del CLP.</p>
+            
+            <h3>Implicancias del CLP</h3>
+            <ul>
+                <li><strong>Rendimiento:</strong> El rendimiento ya no depende de la velocidad del reloj, sino de cuántas tareas paralelas puede manejar el chip. Esto es crucial para software moderno (servidores web, IA, videojuegos).</li>
+                <li><strong>Diseño:</strong> Los diseñadores de chips ahora se centran en cómo integrar múltiples "cerebros" (núcleos) en un chip, cómo se comunican entre sí y cómo comparten recursos (como la memoria caché).</li>
+                <li><strong>Eficiencia (Rendimiento por Vatio):</strong> Varios núcleos más simples y lentos suelen ser mucho más eficientes energéticamente que un solo núcleo monolítico y ultra-rápido para tareas paralelas.</li>
+            </ul>
+        </div>
 
-        <div id="TiposParalelismo" class="tabcontent">
-            <h2>Identificando el Paralelismo (ILP, TLP, DLP)</h2>
-            <p>En las arquitecturas modernas, el CLP se manifiesta explotando diferentes tipos de paralelismo. Los tres principales son:</p>
-            
-            <div class="img-placeholder"></div>
-            <br>
-            
-            <div class="grid-container">
-                <div class="grid-item">
-                    <h3>1. Paralelismo a Nivel de Instrucción (ILP)</h3>
-                    <p><strong>¿Qué es?</strong> Es la capacidad de ejecutar múltiples instrucciones *del mismo programa o hilo* al mismo tiempo.</p>
-                    <p><strong>Analogía:</strong> Una línea de ensamblaje de fábrica (Pipelining) o una fábrica con varias líneas de ensamblaje (Superscalar) trabajando en *un solo producto*.</p>
-                    <p><strong>Técnicas Clave:</strong></p>
-                    <ul>
-                        <li><strong>Pipelining (Segmentación):</strong> Se solapan las etapas de ejecución de diferentes instrucciones (Fetch, Decode, Execute, Writeback).</li>
-                        <li><strong>Ejecución Superescalar:</strong> El procesador tiene múltiples unidades de ejecución (ej. 2 ALUs, 1 FPU) y puede despachar más de una instrucción por ciclo de reloj.</li>
-                        <li><strong>Ejecución Fuera de Orden (OoOE):</strong> Reordena las instrucciones para mantener las unidades de ejecución ocupadas, incluso si una instrucción está bloqueada (ej. esperando datos de memoria).</li>
-                    </ul>
-                </div>
+        <div id="TiposParalelismo" class="tabcontent">
+            <h2>Identificando el Paralelismo (ILP, TLP, DLP)</h2>
+            <p>En las arquitecturas modernas, el CLP se manifiesta explotando diferentes tipos de paralelismo. Los tres principales son:</p>
+            
+            <div class="img-placeholder"></div>
+            <br>
+            
+            <div class="grid-container">
+                <div class="grid-item">
+                    <h3>1. Paralelismo a Nivel de Instrucción (ILP)</h3>
+                    <p><strong>¿Qué es?</strong> Es la capacidad de ejecutar múltiples instrucciones *del mismo programa o hilo* al mismo tiempo.</p>
+                    <p><strong>Analogía:</strong> Una línea de ensamblaje de fábrica (Pipelining) o una fábrica con varias líneas de ensamblaje (Superscalar) trabajando en *un solo producto*.</p>
+                    <p><strong>Técnicas Clave:</strong></p>
+                    <ul>
+                        <li><strong>Pipelining (Segmentación):</strong> Se solapan las etapas de ejecución de diferentes instrucciones (Fetch, Decode, Execute, Writeback).</li>
+                        <li><strong>Ejecución Superescalar:</strong> El procesador tiene múltiples unidades de ejecución (ej. 2 ALUs, 1 FPU) y puede despachar más de una instrucción por ciclo de reloj.</li>
+                        <li><strong>Ejecución Fuera de Orden (OoOE):</strong> Reordena las instrucciones para mantener las unidades de ejecución ocupadas, incluso si una instrucción está bloqueada (ej. esperando datos de memoria).</li>
+                    </ul>
+                </div>
 
-                <div class="grid-item">
-                    <h3>2. Paralelismo a Nivel de Hilo (TLP)</h3>
-                    <p><strong>¿Qué es?</strong> Es la capacidad de ejecutar instrucciones de *diferentes hilos o programas* de forma concurrente.</p>
-                    <p><strong>Analogía:</strong> Una cocina con un chef (núcleo) que cambia rápidamente entre dos recetas (hilos) para aprovechar el tiempo mientras una se cocina (Multithreading), O una cocina con dos chefs (núcleos), cada uno con su propia receta (Multi-core).</p>
-                    <p><strong>Técnicas Clave:</strong></p>
-                    <ul>
-                        <li><strong>Multithreading (Simultáneo - SMT):</strong> Un solo núcleo físico finge ser dos (o más) núcleos lógicos para el sistema operativo. Comparte las unidades de ejecución entre hilos en el *mismo ciclo de reloj*. (Ej. Hyper-Threading de Intel).</li>
-                        <li><strong>Multi-core:</strong> El chip contiene múltiples núcleos de procesamiento (CPUs) completos e independientes. Esta es la forma más explícita de TLP.</li>
-                    </ul>
-                </div>
+                <div class="grid-item">
+                    <h3>2. Paralelismo a Nivel de Hilo (TLP)</h3>
+                    <p><strong>¿Qué es?</strong> Es la capacidad de ejecutar instrucciones de *diferentes hilos o programas* de forma concurrente.</p>
+                    <p><strong>Analogía:</strong> Una cocina con un chef (núcleo) que cambia rápidamente entre dos recetas (hilos) para aprovechar el tiempo mientras una se cocina (Multithreading), O una cocina con dos chefs (núcleos), cada uno con su propia receta (Multi-core).</p>
+                    <p><strong>Técnicas Clave:</strong></p>
+                    <ul>
+                        <li><strong>Multithreading (Simultáneo - SMT):</strong> Un solo núcleo físico finge ser dos (o más) núcleos lógicos para el sistema operativo. Comparte las unidades de ejecución entre hilos en el *mismo ciclo de reloj*. (Ej. Hyper-Threading de Intel).</li>
+                        <li><strong>Multi-core:</strong> El chip contiene múltiples núcleos de procesamiento (CPUs) completos e independientes. Esta es la forma más explícita de TLP.</li>
+                    </ul>
+                </div>
 
-                <div class="grid-item">
-                    <h3>3. Paralelismo a Nivel de Datos (DLP)</h3>
-                    <p><strong>¿Qué es?</strong> Es la capacidad de aplicar *la misma operación* a *múltiples elementos de datos* simultáneamente.</p>
-                    <p><strong>Analogía:</strong> Un sello de goma grande (operación) que marca una fila completa de 10 sobres (datos) con un solo movimiento, en lugar de sellar uno por uno.</p>
-                    <p><strong>Técnicas Clave:</strong></p>
-                    <ul>
-                        <li><strong>Instrucciones SIMD (Single Instruction, Multiple Data):</strong> El procesador tiene registros e instrucciones especiales (ej. SSE, AVX) que pueden sumar 4, 8 o más pares de números a la vez.</li>
-                        <li><strong>Procesadores Vectoriales / GPUs:</strong> Llevan esto al extremo, con miles de "núcleos" simples diseñados para hacer la misma operación matemática en grandes conjuntos de datos (ideal para gráficos, IA).</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div id="Arquitecturas" class="tabcontent">
-            <h2>Arquitecturas Clave del CLP</h2>
-            <p>Estos son los bloques de construcción fundamentales que implementan los tipos de paralelismo que vimos.</p>
+                <div class="grid-item">
+                    <h3>3. Paralelismo a Nivel de Datos (DLP)</h3>
+                    <p><strong>¿Qué es?</strong> Es la capacidad de aplicar *la misma operación* a *múltiples elementos de datos* simultáneamente.</p>
+                    <p><strong>Analogía:</strong> Un sello de goma grande (operación) que marca una fila completa de 10 sobres (datos) con un solo movimiento, en lugar de sellar uno por uno.</p>
+                    <p><strong>Técnicas Clave:</strong></p>
+                    <ul>
+                        <li><strong>Instrucciones SIMD (Single Instruction, Multiple Data):</strong> El procesador tiene registros e instrucciones especiales (ej. SSE, AVX) que pueden sumar 4, 8 o más pares de números a la vez.</li>
+                        <li><strong>Procesadores Vectoriales / GPUs:</strong> Llevan esto al extremo, con miles de "núcleos" simples diseñados para hacer la misma operación matemática en grandes conjuntos de datos (ideal para gráficos, IA).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div id="Arquitecturas" class="tabcontent">
+            <h2>Arquitecturas Clave del CLP</h2>
+            <p>Estos son los bloques de construcción fundamentales que implementan los tipos de paralelismo que vimos.</p>
 
-            <article>
-                <h3>Ejecución Superescalar (Explotando ILP)</h3>
-                <p>Un procesador superescalar tiene múltiples unidades de ejecución (pipelines) y puede buscar, decodificar y despachar *múltiples instrucciones por ciclo de reloj*. Es la base de casi todos los procesadores modernos (Intel Core, AMD Ryzen, Apple M-series).</p>
-                <ul>
-                    <li><strong>Concepto:</strong> Explotar ILP.</li>
-                    <li><strong>Cómo:</strong> Duplicar el hardware interno (ALUs, FPUs, puertos de caché).</li>
-                    <li><strong>Desafío:</strong> Encontrar suficientes instrucciones independientes en un solo hilo. La ejecución fuera de orden (OoOE) es vital para esto.</li>
-                </ul>
-                <div class="img-placeholder"></div>
-            </article>
+            <article>
+                <h3>Ejecución Superescalar (Explotando ILP)</h3>
+                <p>Un procesador superescalar tiene múltiples unidades de ejecución (pipelines) y puede buscar, decodificar y despachar *múltiples instrucciones por ciclo de reloj*. Es la base de casi todos los procesadores modernos (Intel Core, AMD Ryzen, Apple M-series).</p>
+                <ul>
+                    <li><strong>Concepto:</strong> Explotar ILP.</li>
+                    <li><strong>Cómo:</strong> Duplicar el hardware interno (ALUs, FPUs, puertos de caché).</li>
+                    <li><strong>Desafío:</strong> Encontrar suficientes instrucciones independientes en un solo hilo. La ejecución fuera de orden (OoOE) es vital para esto.</li>
+                </ul>
+                <div class="img-placeholder"></div>
+            </article>
 
-            <hr>
+            <hr>
 
-            <article>
-                <h3>Multihilo o Multithreading (Explotando TLP)</h3>
-                <p>Esta técnica permite que un solo núcleo de procesador maneje múltiples hilos. Su objetivo principal es *ocultar la latencia* (especialmente las esperas a la memoria RAM, que son muy lentas).</p>
-                <ul>
-                    <li><strong>Multithreading de Grano Grueso:</strong> El núcleo ejecuta un hilo hasta que este se bloquea (ej. fallo de caché). Entonces, vacía su pipeline y cambia a otro hilo. Pierde algunos ciclos en el cambio.</li>
-                    <li><strong>Multithreading Simultáneo (SMT):</strong> El núcleo puede tomar instrucciones de *dos o más hilos* y ejecutarlas en el *mismo ciclo* si usan unidades de ejecución diferentes. Para el SO, un núcleo físico aparece como dos (o más) núcleos lógicos. (Ej. Hyper-Threading).</li>
-                </ul>
-                <div class="img-placeholder"></div>
-            </article>
+            <article>
+                <h3>Multihilo o Multithreading (Explotando TLP)</h3>
+                <p>Esta técnica permite que un solo núcleo de procesador maneje múltiples hilos. Su objetivo principal es *ocultar la latencia* (especialmente las esperas a la memoria RAM, que son muy lentas).</p>
+                <ul>
+                    <li><strong>Multithreading de Grano Grueso:</strong> El núcleo ejecuta un hilo hasta que este se bloquea (ej. fallo de caché). Entonces, vacía su pipeline y cambia a otro hilo. Pierde algunos ciclos en el cambio.</li>
+                    <li><strong>Multithreading Simultáneo (SMT):</strong> El núcleo puede tomar instrucciones de *dos o más hilos* y ejecutarlas en el *mismo ciclo* si usan unidades de ejecución diferentes. Para el SO, un núcleo físico aparece como dos (o más) núcleos lógicos. (Ej. Hyper-Threading).</li>
+                </ul>
+                <div class="img-placeholder"></div>
+            </article>
 
-            <hr>
+            <hr>
 
-            <article>
-                <h3>Múltiples Núcleos (Multi-core) (Explotando TLP)</h3>
-                <p>Esta es la forma más visible de CLP. En lugar de hacer un solo núcleo más complejo, el chip integra dos, cuatro, ocho o más núcleos (CPUs) completos. Cada núcleo es típicamente superescalar y puede tener su propio SMT.</p>
-                <ul>
-                    <li><strong>Concepto:</strong> Replicar procesadores enteros dentro del mismo chip.</li>
-                    <li><strong>Cómo:</strong> Cada núcleo tiene su propia L1/L2 caché (generalmente), y comparten una caché L3 más grande y el acceso a la RAM.</li>
-                    <li><strong>Desafío:</strong> El software debe estar explícitamente paralelizado (dividido en hilos) para aprovechar los múltiples núcleos. El sistema operativo se encarga de asignar hilos a los núcleos.</li>
-                </ul>
-                <div class="img-placeholder"></div>
-            </article>
-        </div>
+            <article>
+                <h3>Múltiples Núcleos (Multi-core) (Explotando TLP)</h3>
+                <p>Esta es la forma más visible de CLP. En lugar de hacer un solo núcleo más complejo, el chip integra dos, cuatro, ocho o más núcleos (CPUs) completos. Cada núcleo es típicamente superescalar y puede tener su propio SMT.</p>
+                <ul>
+                    <li><strong>Concepto:</strong> Replicar procesadores enteros dentro del mismo chip.</li>
+                    <li><strong>Cómo:</strong> Cada núcleo tiene su propia L1/L2 caché (generalmente), y comparten una caché L3 más grande y el acceso a la RAM.</li>
+                    <li><strong>Desafío:</strong> El software debe estar explícitamente paralelizado (dividido en hilos) para aprovechar los múltiples núcleos. El sistema operativo se encarga de asignar hilos a los núcleos.</li>
+                </ul>
+                <div class="img-placeholder"></div>
+            </article>
+        </div>
 
-        <div id="Simulador" class="tabcontent">
-            <h2>Simulador Conceptual de Carga de Trabajo</h2>
-            <p>Selecciona una arquitectura y una carga de trabajo para ver una simulación visual de cómo se procesan las tareas. Cada "Tarea" representa una unidad de trabajo, y cada "Ciclo" es una unidad de tiempo.</p>
+        <div id="Simulador" class="tabcontent">
+            <h2>Simulador Conceptual de Carga de Trabajo</h2>
+            <p>Selecciona una arquitectura y una carga de trabajo para ver una simulación visual de cómo se procesan las tareas. Cada "Tarea" representa una unidad de trabajo, y cada "Ciclo" es una unidad de tiempo.</p>
 
-            <div id="sim-controls">
-                <label for="workload">Carga de Trabajo (Nº de Tareas): </label>
-                <input type="number" id="workload" value="16" min="4" max="64" step="4">
-                
-                <label for="architecture">Seleccionar Arquitectura: </label>
-                <select id="architecture">
-                    <option value="single">Single-Core (Scalar)</option>
-                    <option value="superscalar">Superscalar (2-wide)</option>
-                    <option value="multicore">Multi-Core (4 núcleos)</option>
-                    <option value="multicore-smt">Multi-Core (2 núcleos) + SMT (2 hilos/núcleo)</option>
-                </select>
-                
-                <button onclick="runSimulation()">Ejecutar Simulación</button>
-            </div>
+            <div id="sim-controls">
+                <label for="workload">Carga de Trabajo (Nº de Tareas): </label>
+                <input type="number" id="workload" value="16" min="4" max="64" step="4">
+                
+                <label for="architecture">Seleccionar Arquitectura: </label>
+                <select id="architecture">
+                    <option value="single">Single-Core (Scalar)</option>
+                    <option value="superscalar">Superscalar (2-wide)</option>
+                    <option value="multicore">Multi-Core (4 núcleos)</option>
+                    <option value="multicore-smt">Multi-Core (2 núcleos) + SMT (2 hilos/núcleo)</option>
+                </select>
+                
+                <button onclick="runSimulation()">Ejecutar Simulación</button>
+            </div>
 
-            <div id="sim-output">
-                </div>
-            <div id="sim-results">
-                Selecciona las opciones y presiona "Ejecutar Simulación".
-            </div>
-        </div>
+            <div id="sim-output">
+                </div>
+            <div id="sim-results">
+                Selecciona las opciones y presiona "Ejecutar Simulación".
+            </div>
+        </div>
 
-        <div id="Evaluacion" class="tabcontent">
-            <h2>Autoevaluación Rápida</h2>
-            <p>Pon a prueba tu comprensión de los conceptos clave.</p>
+        <div id="Evaluacion" class="tabcontent">
+            <h2>Autoevaluación Rápida</h2>
+            <p>Pon a prueba tu comprensión de los conceptos clave.</p>
 
-            <div class="quiz-question">
-                <p>1. ¿Qué tipo principal de paralelismo intenta explotar una arquitectura **superescalar**?</p>
-                <div class="quiz-options">
-                    <label><input type="radio" name="q1" value="ilp"> ILP (Paralelismo a Nivel de Instrucción)</label>
-                    <label><input type="radio" name="q1" value="tlp"> TLP (Paralelismo a Nivel de Hilo)</label>
-                    <label><input type="radio" name="q1" value="dlp"> DLP (Paralelismo a Nivel de Datos)</label>
-                </div>
-            </div>
+            <div class="quiz-question">
+                <p>1. ¿Qué tipo principal de paralelismo intenta explotar una arquitectura **superescalar**?</p>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q1" value="ilp"> ILP (Paralelismo a Nivel de Instrucción)</label>
+                    <label><input type="radio" name="q1" value="tlp"> TLP (Paralelismo a Nivel de Hilo)</label>
+                    <label><input type="radio" name="q1" value="dlp"> DLP (Paralelismo a Nivel de Datos)</label>
+                </div>
+            </div>
 
-            <div class="quiz-question">
-                <p>2. ¿Cuál es la diferencia clave entre **Multi-core** y **Multithreading (SMT)**?</p>
-                <div class="quiz-options">
-                    <label><input type="radio" name="q2" value="a"> SMT usa un núcleo para ejecutar muchos hilos, Multi-core usa muchos núcleos para ejecutar un hilo.</label>
-                    <label><input type="radio" name="q2" value="b"> Multi-core replica núcleos físicos completos, SMT comparte los recursos de un solo núcleo entre hilos lógicos.</label>
-                    <label><input type="radio" name="q2" value="c"> No hay diferencia, son sinónimos.</label>
-                </div>
-            </div>
+            <div class="quiz-question">
+                <p>2. ¿Cuál es la diferencia clave entre **Multi-core** y **Multithreading (SMT)**?</p>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q2" value="a"> SMT usa un núcleo para ejecutar muchos hilos, Multi-core usa muchos núcleos para ejecutar un hilo.</label>
+                    <label><input type="radio" name="q2" value="b"> Multi-core replica núcleos físicos completos, SMT comparte los recursos de un solo núcleo entre hilos lógicos.</label>
+                    <label><input type="radio" name="q2" value="c"> No hay diferencia, son sinónimos.</label>
+                </div>
+            </div>
 
-            <div class="quiz-question">
-                <p>3. Un procesador que ejecuta una instrucción <code>ADD</code> en 8 pares de números a la vez está usando...</p>
-                <div class="quiz-options">
-                    <label><input type="radio" name="q3" value="ilp"> ILP (Paralelismo a Nivel de Instrucción)</label>
-                    <label><input type="radio" name="q3" value="tlp"> TLP (Paralelismo a Nivel de Hilo)</label>
-                    <label><input type="radio" name="q3" value="dlp"> DLP (Paralelismo a Nivel de Datos)</label>
-                </div>
-            </div>
+            <div class="quiz-question">
+                <p>3. Un procesador que ejecuta una instrucción <code>ADD</code> en 8 pares de números a la vez está usando...</p>
+                <div class="quiz-options">
+                    <label><input type="radio" name="q3" value="ilp"> ILP (Paralelismo a Nivel de Instrucción)</label>
+                    <label><input type="radio" name="q3" value="tlp"> TLP (Paralelismo a Nivel de Hilo)</label>
+                    <label><input type="radio" name="q3" value="dlp"> DLP (Paralelismo a Nivel de Datos)</label>
+                </div>
+            </div>
 
-            <button onclick="checkQuiz()">Corregir Examen</button>
-            <div id="quiz-feedback"></div>
+            <button onclick="checkQuiz()">Corregir Examen</button>
+            <div id="quiz-feedback"></div>
 
-        </div>
+        </div>
 
-    </div>
+    </div>
 
-    <script>
-        // --- Lógica de Pestañas ---
-        function openTab(evt, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tablinks = document.getElementsByClassName("tablink");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-        // Abrir la primera pestaña por defecto
-        document.getElementById("defaultOpen").click();
+    <script>
+        // --- Lógica de Pestañas ---
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablink");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        // Abrir la primera pestaña por defecto
+        document.getElementById("defaultOpen").click();
 
-        // --- Lógica del Simulador ---
-        function runSimulation() {
-            const workload = parseInt(document.getElementById('workload').value);
-            const arch = document.getElementById('architecture').value;
-            const output = document.getElementById('sim-output');
-            const results = document.getElementById('sim-results');
-            
-            output.innerHTML = ''; // Limpiar simulación anterior
-            let cycles = 0;
-            let totalTasks = workload;
-            let tasksDone = 0;
-            
-            let coreHtml = '';
-            let tasksPerCycle = 0;
-            let numCores = 0;
+        // --- Lógica del Simulador ---
+        function runSimulation() {
+            const workload = parseInt(document.getElementById('workload').value);
+            const arch = document.getElementById('architecture').value;
+            const output = document.getElementById('sim-output');
+            const results = document.getElementById('sim-results');
+            
+            output.innerHTML = ''; // Limpiar simulación anterior
+            let cycles = 0;
+            let totalTasks = workload;
+            let tasksDone = 0;
+            
+            let coreHtml = '';
+            let tasksPerCycle = 0;
+            let numCores = 0;
 
-            switch (arch) {
-                case 'single':
-                    numCores = 1;
-                    tasksPerCycle = 1;
-                    cycles = Math.ceil(totalTasks / tasksPerCycle);
-                    coreHtml = createCoreBars(numCores, totalTasks, tasksPerCycle, 'task-bar');
-                    break;
-                case 'superscalar':
-                    numCores = 1;
-                    tasksPerCycle = 2; // 2-wide
-                    cycles = Math.ceil(totalTasks / tasksPerCycle);
-                    coreHtml = createCoreBars(numCores, totalTasks, tasksPerCycle, 'task-bar-superscalar');
-                    break;
-                case 'multicore':
-                    numCores = 4;
-                    tasksPerCycle = 1; // 1 tarea por núcleo
-                    cycles = Math.ceil(totalTasks / (numCores * tasksPerCycle));
-                    coreHtml = createCoreBars(numCores, totalTasks, tasksPerCycle, 'task-bar-multicore');
-                    break;
-                case 'multicore-smt':
-                    numCores = 2; // 2 núcleos físicos
-                    tasksPerCycle = 2; // 2 hilos por núcleo = 2 tareas por núcleo
-                    cycles = Math.ceil(totalTasks / (numCores * tasksPerCycle));
-                    coreHtml = createCoreBars(numCores, totalTasks, tasksPerCycle, 'task-bar-multicore');
-                    break;
-            }
+            switch (arch) {
+                case 'single':
+                    numCores = 1;
+                    tasksPerCycle = 1;
+                    cycles = Math.ceil(totalTasks / tasksPerCycle);
+                    coreHtml = createCoreBars(numCores, totalTasks, tasksPerCycle, 'task-bar');
+                    break;
+                case 'superscalar':
+                    numCores = 1;
+                    tasksPerCycle = 2; // 2-wide
+                    cycles = Math.ceil(totalTasks / tasksPerCycle);
+                    coreHtml = createCoreBars(numCores, totalTasks, tasksPerCycle, 'task-bar-superscalar');
+                    break;
+                case 'multicore':
+                    numCores = 4;
+                    tasksPerCycle = 1; // 1 tarea por núcleo
+                    cycles = Math.ceil(totalTasks / (numCores * tasksPerCycle));
+                    coreHtml = createCoreBars(numCores, totalTasks, tasksPerCycle, 'task-bar-multicore');
+                    break;
+                case 'multicore-smt':
+                    numCores = 2; // 2 núcleos físicos
+                    tasksPerCycle = 2; // 2 hilos por núcleo = 2 tareas por núcleo
+                    cycles = Math.ceil(totalTasks / (numCores * tasksPerCycle));
+                    coreHtml = createCoreBars(numCores, totalTasks, tasksPerCycle, 'task-bar-multicore');
+                    break;
+            }
 
-            output.innerHTML = coreHtml;
-            results.innerHTML = `Arquitectura: ${arch} | Tareas: ${totalTasks} | <strong>Ciclos Totales: ${cycles}</strong>`;
+            output.innerHTML = coreHtml;
+            results.innerHTML = `Arquitectura: ${arch} | Tareas: ${totalTasks} | <strong>Ciclos Totales: ${cycles}</strong>`;
 
-            // Animar las barras
-            const bars = document.querySelectorAll('.task-bar-wrapper');
-            let taskCounter = 0;
-            let currentCycle = 0;
+            // Animar las barras
+            const bars = document.querySelectorAll('.task-bar-wrapper');
+            let taskCounter = 0;
+            let currentCycle = 0;
 
-            function animateCycle() {
-                if (taskCounter >= totalTasks) return;
-                
-                currentCycle++;
-                results.innerHTML = `Arquitectura: ${arch} | Tareas: ${totalTasks} | Ciclo actual: ${currentCycle} | <strong>Ciclos Totales (Estimados): ${cycles}</strong>`;
+            function animateCycle() {
+                if (taskCounter >= totalTasks) return;
+                
+                currentCycle++;
+                results.innerHTML = `Arquitectura: ${arch} | Tareas: ${totalTasks} | Ciclo actual: ${currentCycle} | <strong>Ciclos Totales (Estimados): ${cycles}</strong>`;
 
-                let tasksThisCycle = 0;
-                if (arch === 'single') tasksThisCycle = 1;
-                if (arch === 'superscalar') tasksThisCycle = 2;
-                if (arch === 'multicore') tasksThisCycle = 4;
-                if (arch === 'multicore-smt') tasksThisCycle = 4; // 2 núcleos * 2 hilos
+                let tasksThisCycle = 0;
+                if (arch === 'single') tasksThisCycle = 1;
+                if (arch === 'superscalar') tasksThisCycle = 2;
+                if (arch === 'multicore') tasksThisCycle = 4;
+                if (arch === 'multicore-smt') tasksThisCycle = 4; // 2 núcleos * 2 hilos
 
-                for (let i = 0; i < tasksThisCycle; i++) {
-                    if (taskCounter < totalTasks) {
-                        const coreIndex = taskCounter % numCores;
-                        const bar = bars[coreIndex].querySelector('.task-bar');
-                        const currentWidth = parseFloat(bar.style.width) || 0;
-                        const taskWidth = (1 / (totalTasks / numCores)) * 100;
-                        
-                        // Para superscalar, la barra es única
-                        if (arch === 'superscalar') {
-                            const barSuper = bars[0].querySelector('.task-bar');
-                            const superTaskWidth = (1 / totalTasks) * 100;
-                            barSuper.style.width = `${(taskCounter + 1) * superTaskWidth}%`;
-                        } 
-                        // Para single core, la barra es única
-                        else if (arch === 'single') {
-                            const barSingle = bars[0].querySelector('.task-bar');
-                            const singleTaskWidth = (1 / totalTasks) * 100;
-                            barSingle.style.width = `${(taskCounter + 1) * singleTaskWidth}%`;
-                        }
-                        // Para multi-core y SMT
-                        else {
-                            const coreTaskCount = Math.floor(taskCounter / numCores) + 1;
-                            const coreTotalTasks = Math.ceil(totalTasks / numCores);
-                            bar.style.width = `${(coreTaskCount / coreTotalTasks) * 100}%`;
-                        }
-                        taskCounter++;
-                    }
-                }
-                
-                if (taskCounter < totalTasks) {
-                    setTimeout(animateCycle, 300); // Siguiente ciclo
-                } else {
-                     results.innerHTML = `¡Completado! | Arquitectura: ${arch} | Tareas: ${totalTasks} | <strong>Ciclos Finales: ${currentCycle}</strong>`;
-                }
-            }
-            
-            // Iniciar animación
-            animateCycle();
-        }
+                for (let i = 0; i < tasksThisCycle; i++) {
+                    if (taskCounter < totalTasks) {
+                        const coreIndex = taskCounter % numCores;
+                        const bar = bars[coreIndex].querySelector('.task-bar');
+                        const currentWidth = parseFloat(bar.style.width) || 0;
+                        const taskWidth = (1 / (totalTasks / numCores)) * 100;
+                        
+                        // Para superscalar, la barra es única
+                        if (arch === 'superscalar') {
+                            const barSuper = bars[0].querySelector('.task-bar');
+                            const superTaskWidth = (1 / totalTasks) * 100;
+                            barSuper.style.width = `${(taskCounter + 1) * superTaskWidth}%`;
+                        } 
+                        // Para single core, la barra es única
+                        else if (arch === 'single') {
+                            const barSingle = bars[0].querySelector('.task-bar');
+                            const singleTaskWidth = (1 / totalTasks) * 100;
+                            barSingle.style.width = `${(taskCounter + 1) * singleTaskWidth}%`;
+                        }
+                        // Para multi-core y SMT
+                        else {
+                            const coreTaskCount = Math.floor(taskCounter / numCores) + 1;
+                            const coreTotalTasks = Math.ceil(totalTasks / numCores);
+                            bar.style.width = `${(coreTaskCount / coreTotalTasks) * 100}%`;
+                        }
+                        taskCounter++;
+                    }
+                }
+                
+                if (taskCounter < totalTasks) {
+                    setTimeout(animateCycle, 300); // Siguiente ciclo
+                } else {
+                     results.innerHTML = `¡Completado! | Arquitectura: ${arch} | Tareas: ${totalTasks} | <strong>Ciclos Finales: ${currentCycle}</strong>`;
+                }
+            }
+            
+            // Iniciar animación
+            animateCycle();
+        }
 
-        function createCoreBars(numCores, totalTasks, tasksPerCycle, barClass) {
-            let html = '';
-            // Caso especial para Superescalar (1 núcleo, Múltiples tareas por ciclo)
-            if (numCores === 1) {
-                let label = (tasksPerCycle > 1) ? `Núcleo Superescalar (x${tasksPerCycle})` : 'Núcleo Único';
-                html += `
-                    <div class="core-container task-bar-wrapper">
-                        <span class="core-label">${label}:</span>
-                        <div class="task-bar ${barClass}" style="width: 0%;" title="Capacidad: ${totalTasks} tareas"></div>
-                    </div>`;
-            } else {
-            // Caso Multi-core
-                for (let i = 0; i < numCores; i++) {
-                    let label = `Núcleo ${i + 1}`;
-                    if(tasksPerCycle > 1) {
-                        label += ` (SMT x${tasksPerCycle})`;
-                    }
-                    html += `
-                        <div class="core-container task-bar-wrapper">
-                            <span class="core-label">${label}:</span>
-                            <div class="task-bar ${barClass}" style="width: 0%;" title="Capacidad: ${Math.ceil(totalTasks/numCores)} tareas"></div>
-                        </div>`;
-                }
-            }
-            return html;
-        }
+        function createCoreBars(numCores, totalTasks, tasksPerCycle, barClass) {
+            let html = '';
+            // Caso especial para Superescalar (1 núcleo, Múltiples tareas por ciclo)
+            if (numCores === 1) {
+                let label = (tasksPerCycle > 1) ? `Núcleo Superescalar (x${tasksPerCycle})` : 'Núcleo Único';
+                html += `
+                    <div class="core-container task-bar-wrapper">
+                        <span class="core-label">${label}:</span>
+                        <div class="task-bar ${barClass}" style="width: 0%;" title="Capacidad: ${totalTasks} tareas"></div>
+                    </div>`;
+            } else {
+            // Caso Multi-core
+                for (let i = 0; i < numCores; i++) {
+                    let label = `Núcleo ${i + 1}`;
+                    if(tasksPerCycle > 1) {
+                        label += ` (SMT x${tasksPerCycle})`;
+                    }
+                    html += `
+                        <div class="core-container task-bar-wrapper">
+                            <span class="core-label">${label}:</span>
+                            <div class="task-bar ${barClass}" style="width: 0%;" title="Capacidad: ${Math.ceil(totalTasks/numCores)} tareas"></div>
+                        </div>`;
+                }
+            }
+            return html;
+        }
 
-        // --- Lógica del Cuestionario ---
-        function checkQuiz() {
-            const answers = {
-                q1: 'ilp',
-                q2: 'b',
-                q3: 'dlp'
-            };
+        // --- Lógica del Cuestionario ---
+        function checkQuiz() {
+            const answers = {
+                q1: 'ilp',
+                q2: 'b',
+                q3: 'dlp'
+            };
 
-            let score = 0;
-            let total = Object.keys(answers).length;
-            let feedback = '';
+            let score = 0;
+            let total = Object.keys(answers).length;
+            let feedback = '';
 
-            for (let q in answers) {
-                const selected = document.querySelector(`input[name="${q}"]:checked`);
-                if (selected) {
-                    if (selected.value === answers[q]) {
-                        score++;
-                        feedback += `<p><strong>Pregunta ${q.slice(1)}:</strong> Correcta. ¡Bien hecho!</p>`;
-                    } else {
-                        feedback += `<p><strong>Pregunta ${q.slice(1)}:</strong> Incorrecta. La respuesta correcta era sobre ${getCorrectAnswerText(q, answers[q])}.</p>`;
-                    }
-                } else {
-                    feedback += `<p><strong>Pregunta ${q.slice(1)}:</strong> No respondida.</p>`;
-                }
-            }
+            for (let q in answers) {
+                const selected = document.querySelector(`input[name="${q}"]:checked`);
+                if (selected) {
+                    if (selected.value === answers[q]) {
+                        score++;
+                        feedback += `<p><strong>Pregunta ${q.slice(1)}:</strong> Correcta. ¡Bien hecho!</p>`;
+                    } else {
+                        feedback += `<p><strong>Pregunta ${q.slice(1)}:</strong> Incorrecta. La respuesta correcta era sobre ${getCorrectAnswerText(q, answers[q])}.</p>`;
+                    }
+                } else {
+                    feedback += `<p><strong>Pregunta ${q.slice(1)}:</strong> No respondida.</p>`;
+                }
+            }
 
-            const feedbackEl = document.getElementById('quiz-feedback');
-            feedbackEl.innerHTML = `<h3>Resultado: ${score} de ${total} correctas</h3>` + feedback;
-            feedbackEl.style.display = 'block';
+            const feedbackEl = document.getElementById('quiz-feedback');
+            feedbackEl.innerHTML = `<h3>Resultado: ${score} de ${total} correctas</h3>` + feedback;
+            feedbackEl.style.display = 'block';
 
-            if (score === total) {
-                feedbackEl.className = 'correct';
-            } else {
-                feedbackEl.className = 'incorrect';
-            }
-        }
+            if (score === total) {
+                feedbackEl.className = 'correct';
+            } else {
+                feedbackEl.className = 'incorrect';
+            }
+        }
 
-        function getCorrectAnswerText(q, val) {
-            if (q === 'q1') return 'ILP';
-            if (q === 'q2') return 'la replicación de núcleos (Multi-core) vs la compartición de recursos (SMT)';
-            if (q === 'q3') return 'DLP (SIMD)';
-            return '';
-        }
+        function getCorrectAnswerText(q, val) {
+            if (q === 'q1') return 'ILP';
+            if (q === 'q2') return 'la replicación de núcleos (Multi-core) vs la compartición de recursos (SMT)';
+            if (q === 'q3') return 'DLP (SIMD)';
+            return '';
+        }
 
-    </script>
+    </script>
 
 </body>
 </html>
