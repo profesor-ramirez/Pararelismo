@@ -1,0 +1,179 @@
+body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        h1, h2, h3 {
+            color: #005a9c;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 3px solid #005a9c;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        /* Navegación por Pestañas */
+        nav {
+            background-color: #333;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        nav button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+            color: white;
+            font-weight: bold;
+        }
+        nav button:hover {
+            background-color: #555;
+        }
+        nav button.active {
+            background-color: #005a9c;
+        }
+
+        /* Contenido de las Pestañas */
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #ffffff;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Estilos para el Simulador */
+        #sim-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        #sim-output {
+            border: 1px solid #ccc;
+            padding: 10px;
+            min-height: 200px;
+            background: #fafafa;
+            overflow-x: auto;
+        }
+        .core-container {
+            margin-bottom: 10px;
+        }
+        .core-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 80px;
+        }
+        .task-bar {
+            display: inline-block;
+            height: 25px;
+            background-color: #007bff;
+            margin: 2px 0;
+            color: white;
+            font-size: 12px;
+            line-height: 25px;
+            text-align: center;
+            transition: width 0.3s ease-out;
+            width: 0; /* Inicia en 0 */
+        }
+        .task-bar-superscalar {
+            background-color: #28a745;
+        }
+        .task-bar-multicore {
+            background-color: #dc3545;
+        }
+        #sim-results {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #005a9c;
+            margin-top: 15px;
+        }
+
+        /* Estilos para el Cuestionario */
+        .quiz-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fefefe;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        .quiz-question p {
+            font-weight: bold;
+        }
+        .quiz-options label {
+            display: block;
+            margin: 5px 0 5px 20px;
+            cursor: pointer;
+        }
+        #quiz-feedback {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none; /* Oculto al inicio */
+        }
+        #quiz-feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        #quiz-feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Utilidades */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .grid-item {
+            background: #fdfdfd;
+            border: 1px solid #eaeaea;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        code {
+            background-color: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .img-placeholder {
+            width: 100%;
+            height: 200px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-style: italic;
+            border: 1px dashed #ccc;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
+        }
